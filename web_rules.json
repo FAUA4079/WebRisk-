@@ -1,0 +1,1753 @@
+{
+  "rules": [
+    {
+      "id": "R001",
+      "match": "phpinfo.php",
+      "match_type": "substring",
+      "tools": [
+        "nikto",
+        "whatweb",
+        "burp"
+      ],
+      "score": 10,
+      "severity": "Critical",
+      "confidence": "High",
+      "note": "phpinfo page found — exposes PHP config and possible secrets.",
+      "recommendation": "Remove phpinfo.php from webroot, rotate any exposed secrets."
+    },
+    {
+      "id": "R002",
+      "match": "php/",
+      "match_type": "substring",
+      "tools": [
+        "whatweb",
+        "nikto"
+      ],
+      "score": 8,
+      "severity": "High",
+      "confidence": "High",
+      "note": "PHP detected — older PHP versions are commonly vulnerable or EOL.",
+      "recommendation": "Confirm exact PHP version and upgrade to a supported release."
+    },
+    {
+      "id": "R003",
+      "match": "apache",
+      "match_type": "substring",
+      "tools": [
+        "nmap",
+        "whatweb",
+        "nikto"
+      ],
+      "score": 7,
+      "severity": "High",
+      "confidence": "High",
+      "note": "Apache web server detected; versions may be vulnerable.",
+      "recommendation": "Check Apache version, disable unused modules, apply patches."
+    },
+    {
+      "id": "R004",
+      "match": "server: nginx",
+      "match_type": "substring",
+      "tools": [
+        "whatweb",
+        "nikto"
+      ],
+      "score": 5,
+      "severity": "Medium",
+      "confidence": "High",
+      "note": "Nginx detected; verify config and patch level.",
+      "recommendation": "Update nginx, review exposed endpoints and headers."
+    },
+    {
+      "id": "R005",
+      "match": "open",
+      "match_type": "substring",
+      "tools": [
+        "nmap"
+      ],
+      "score": 3,
+      "severity": "Low",
+      "confidence": "Medium",
+      "note": "Open ports/services detected by nmap.",
+      "recommendation": "Review which services are required and restrict via firewall."
+    },
+    {
+      "id": "R006",
+      "match": "22/tcp open ssh",
+      "match_type": "substring",
+      "tools": [
+        "nmap"
+      ],
+      "score": 4,
+      "severity": "Low",
+      "confidence": "High",
+      "note": "SSH open — legitimate but must be secured.",
+      "recommendation": "Enforce key-based auth, disable password auth, restrict by IP."
+    },
+    {
+      "id": "R007",
+      "match": "21/tcp open ftp",
+      "match_type": "substring",
+      "tools": [
+        "nmap",
+        "nikto"
+      ],
+      "score": 6,
+      "severity": "Medium",
+      "confidence": "High",
+      "note": "FTP service is accessible (cleartext credential risk).",
+      "recommendation": "Disable FTP or limit; use SFTP/FTPS and enforce auth."
+    },
+    {
+      "id": "R008",
+      "match": "anonymous login ok",
+      "match_type": "substring",
+      "tools": [
+        "ftp scanners",
+        "nikto"
+      ],
+      "score": 8,
+      "severity": "High",
+      "confidence": "High",
+      "note": "Anonymous FTP allowed — may permit data exfil/upload.",
+      "recommendation": "Disable anonymous login and audit uploaded files."
+    },
+    {
+      "id": "R009",
+      "match": "ssl|tls|https",
+      "match_type": "regex",
+      "tools": [
+        "nmap",
+        "whatweb",
+        "sslscan"
+      ],
+      "score": 2,
+      "severity": "Low",
+      "confidence": "Medium",
+      "note": "TLS/SSL detected; perform detailed TLS checks separately.",
+      "recommendation": "Run sslscan/sslyze and address weak ciphers or versions."
+    },
+    {
+      "id": "R010",
+      "match": "sslv3",
+      "match_type": "substring",
+      "tools": [
+        "sslscan",
+        "nmap"
+      ],
+      "score": 10,
+      "severity": "Critical",
+      "confidence": "High",
+      "note": "SSLv3 detected — insecure (POODLE risk).",
+      "recommendation": "Disable SSLv3 and prefer TLS 1.2/1.3."
+    },
+    {
+      "id": "R011",
+      "match": "tlsv1.0|tlsv1.1",
+      "match_type": "regex",
+      "tools": [
+        "sslscan",
+        "nmap"
+      ],
+      "score": 7,
+      "severity": "High",
+      "confidence": "High",
+      "note": "Deprecated TLS versions detected.",
+      "recommendation": "Disable TLS 1.0/1.1; enforce TLS 1.2/1.3."
+    },
+    {
+      "id": "R012",
+      "match": "weak ciphers|rc4|des|3des",
+      "match_type": "regex",
+      "tools": [
+        "sslscan",
+        "nmap"
+      ],
+      "score": 8,
+      "severity": "High",
+      "confidence": "High",
+      "note": "Weak TLS ciphers found.",
+      "recommendation": "Remove weak ciphers and use modern cipher suites."
+    },
+    {
+      "id": "R013",
+      "match": "self signed certificate",
+      "match_type": "substring",
+      "tools": [
+        "sslscan",
+        "whatweb"
+      ],
+      "score": 5,
+      "severity": "Medium",
+      "confidence": "High",
+      "note": "Self-signed certificate — trust & MITM risk.",
+      "recommendation": "Replace with CA-signed certificates or internal PKI with trust controls."
+    },
+    {
+      "id": "R014",
+      "match": "expired certificate|certificate expired",
+      "match_type": "regex",
+      "tools": [
+        "sslscan",
+        "whatweb"
+      ],
+      "score": 7,
+      "severity": "High",
+      "confidence": "High",
+      "note": "Expired TLS certificate detected.",
+      "recommendation": "Renew the certificate and verify the full chain and SANs."
+    },
+    {
+      "id": "R015",
+      "match": "x-frame-options",
+      "match_type": "substring",
+      "tools": [
+        "nikto",
+        "whatweb"
+      ],
+      "score": 3,
+      "severity": "Low",
+      "confidence": "High",
+      "note": "X-Frame-Options header present/absent indicator.",
+      "recommendation": "If missing, add X-Frame-Options or CSP frame-ancestors to prevent framing."
+    },
+    {
+      "id": "R016",
+      "match": "content-security-policy",
+      "match_type": "substring",
+      "tools": [
+        "whatweb",
+        "nikto"
+      ],
+      "score": 2,
+      "severity": "Low",
+      "confidence": "High",
+      "note": "CSP header status.",
+      "recommendation": "Implement a restrictive CSP to mitigate XSS."
+    },
+    {
+      "id": "R017",
+      "match": "x-powered-by",
+      "match_type": "substring",
+      "tools": [
+        "whatweb",
+        "nikto"
+      ],
+      "score": 3,
+      "severity": "Low",
+      "confidence": "High",
+      "note": "Technology disclosure header found (x-powered-by).",
+      "recommendation": "Hide or remove fingerprinting headers from production."
+    },
+    {
+      "id": "R018",
+      "match": "directory listing|index of /",
+      "match_type": "regex",
+      "tools": [
+        "nikto",
+        "whatweb",
+        "gobuster"
+      ],
+      "score": 6,
+      "severity": "Medium",
+      "confidence": "High",
+      "note": "Directory listing enabled — may expose files.",
+      "recommendation": "Disable directory indexes and remove sensitive files."
+    },
+    {
+      "id": "R019",
+      "match": "robots.txt",
+      "match_type": "substring",
+      "tools": [
+        "whatweb",
+        "nikto"
+      ],
+      "score": 2,
+      "severity": "Low",
+      "confidence": "High",
+      "note": "robots.txt found — may list hidden endpoints.",
+      "recommendation": "Avoid listing sensitive paths in robots; restrict access to admin paths."
+    },
+    {
+      "id": "R020",
+      "match": ".env",
+      "match_type": "substring",
+      "tools": [
+        "gobuster",
+        "nikto",
+        "whatweb"
+      ],
+      "score": 10,
+      "severity": "Critical",
+      "confidence": "High",
+      "note": ".env file or environment config file exposed publicly — high-risk secret leakage.",
+      "recommendation": "Remove .env from webroot, rotate any leaked keys, and scan for leaked keys."
+    },
+    {
+      "id": "R021",
+      "match": ".git",
+      "match_type": "substring",
+      "tools": [
+        "gobuster",
+        "nikto"
+      ],
+      "score": 9,
+      "severity": "High",
+      "confidence": "High",
+      "note": "Git metadata exposed — source code and secrets may be retrievable.",
+      "recommendation": "Remove .git from public directories and audit repository for secrets."
+    },
+    {
+      "id": "R022",
+      "match": "backup",
+      "match_type": "substring",
+      "tools": [
+        "gobuster",
+        "nikto"
+      ],
+      "score": 6,
+      "severity": "Medium",
+      "confidence": "Medium",
+      "note": "Backup files or dumps discovered in webroot (.bak, .zip, .sql).",
+      "recommendation": "Remove backups from webroot and secure backups offsite."
+    },
+    {
+      "id": "R023",
+      "match": "phpmyadmin",
+      "match_type": "substring",
+      "tools": [
+        "whatweb",
+        "gobuster",
+        "nmap"
+      ],
+      "score": 8,
+      "severity": "High",
+      "confidence": "High",
+      "note": "phpMyAdmin accessible — default interfaces attract attacks.",
+      "recommendation": "Restrict access to phpMyAdmin, secure with auth & IP whitelisting."
+    },
+    {
+      "id": "R024",
+      "match": "wordpress",
+      "match_type": "substring",
+      "tools": [
+        "whatweb",
+        "wpscan",
+        "nikto"
+      ],
+      "score": 9,
+      "severity": "High",
+      "confidence": "High",
+      "note": "WordPress detected; plugins/themes often vulnerable.",
+      "recommendation": "Run wpscan, update core/plugins/themes, and harden admin."
+    },
+    {
+      "id": "R025",
+      "match": "joomla",
+      "match_type": "substring",
+      "tools": [
+        "whatweb",
+        "nikto"
+      ],
+      "score": 8,
+      "severity": "High",
+      "confidence": "High",
+      "note": "Joomla CMS detected — check extensions and patch level.",
+      "recommendation": "Update Joomla and extensions; review admin access."
+    },
+    {
+      "id": "R026",
+      "match": "drupal",
+      "match_type": "substring",
+      "tools": [
+        "whatweb",
+        "nikto"
+      ],
+      "score": 8,
+      "severity": "High",
+      "confidence": "High",
+      "note": "Drupal detected — investigate module vulnerabilities.",
+      "recommendation": "Patch core/modules and remove unused modules."
+    },
+    {
+      "id": "R027",
+      "match": "wp-login.php|/wp-admin/",
+      "match_type": "regex",
+      "tools": [
+        "whatweb",
+        "gobuster",
+        "nikto"
+      ],
+      "score": 5,
+      "severity": "Medium",
+      "confidence": "High",
+      "note": "WordPress login/admin endpoints discovered.",
+      "recommendation": "Rate-limit auth, enable 2FA, restrict access."
+    },
+    {
+      "id": "R028",
+      "match": "sqlmap",
+      "match_type": "substring",
+      "tools": [
+        "sqlmap",
+        "nikto"
+      ],
+      "score": 9,
+      "severity": "High",
+      "confidence": "Medium",
+      "note": "SQL injection evidence or automated tool output found.",
+      "recommendation": "Perform manual verification; fix parameterized queries and input validation."
+    },
+    {
+      "id": "R029",
+      "match": "sql syntax|sql error|syntax error in sql",
+      "match_type": "regex",
+      "tools": [
+        "nikto",
+        "whatweb"
+      ],
+      "score": 9,
+      "severity": "High",
+      "confidence": "High",
+      "note": "SQL error messages seen in responses — may indicate injection points.",
+      "recommendation": "Sanitize inputs, use parameterized queries, and hide debug errors."
+    },
+    {
+      "id": "R030",
+      "match": "xss",
+      "match_type": "substring",
+      "tools": [
+        "wapiti",
+        "nikto",
+        "burp"
+      ],
+      "score": 8,
+      "severity": "High",
+      "confidence": "Medium",
+      "note": "Possible XSS findings or payload reflections observed.",
+      "recommendation": "Validate+encode output; apply CSP and input sanitization."
+    },
+    {
+      "id": "R031",
+      "match": "cross site scripting",
+      "match_type": "substring",
+      "tools": [
+        "wapiti",
+        "nikto",
+        "burp"
+      ],
+      "score": 9,
+      "severity": "High",
+      "confidence": "High",
+      "note": "XSS confirmed or strongly indicated.",
+      "recommendation": "Remediate with encoding and CSP; retest after fixes."
+    },
+    {
+      "id": "R032",
+      "match": "osvdb|cve|vulnerability",
+      "match_type": "regex",
+      "tools": [
+        "nikto",
+        "whatweb"
+      ],
+      "score": 7,
+      "severity": "High",
+      "confidence": "Medium",
+      "note": "Scanner identified known vuln markers or CVE strings.",
+      "recommendation": "Correlate with CVE database and verify exploitability."
+    },
+    {
+      "id": "R033",
+      "match": "directory traversal|../etc/passwd",
+      "match_type": "regex",
+      "tools": [
+        "nikto",
+        "wapiti",
+        "burp"
+      ],
+      "score": 10,
+      "severity": "Critical",
+      "confidence": "High",
+      "note": "Directory traversal evidence found (sensitive file leak).",
+      "recommendation": "Fix path handling and sanitize file paths; check for leaked files."
+    },
+    {
+      "id": "R034",
+      "match": "insecure file upload|upload file",
+      "match_type": "regex",
+      "tools": [
+        "nikto",
+        "burp"
+      ],
+      "score": 9,
+      "severity": "High",
+      "confidence": "Medium",
+      "note": "File upload points that may allow arbitrary file writes.",
+      "recommendation": "Validate file types, use virus scanning, and store uploads outside webroot."
+    },
+    {
+      "id": "R035",
+      "match": "open redis|redis server",
+      "match_type": "regex",
+      "tools": [
+        "nmap",
+        "whatweb"
+      ],
+      "score": 8,
+      "severity": "High",
+      "confidence": "High",
+      "note": "Redis service exposed without auth — data & RCE risk.",
+      "recommendation": "Restrict Redis to localhost or secure with ACLs/firewall and require auth."
+    },
+    {
+      "id": "R036",
+      "match": "elastic|elasticsearch",
+      "match_type": "regex",
+      "tools": [
+        "nmap",
+        "whatweb"
+      ],
+      "score": 9,
+      "severity": "High",
+      "confidence": "High",
+      "note": "Elasticsearch cluster reachable publicly — data exposure risk.",
+      "recommendation": "Restrict access, enable auth, and secure snapshots."
+    },
+    {
+      "id": "R037",
+      "match": "mongodb",
+      "match_type": "substring",
+      "tools": [
+        "nmap"
+      ],
+      "score": 8,
+      "severity": "High",
+      "confidence": "High",
+      "note": "MongoDB open to network — unauthenticated access possible.",
+      "recommendation": "Bind MongoDB to localhost or enable auth and firewall rules."
+    },
+    {
+      "id": "R038",
+      "match": "memcached",
+      "match_type": "substring",
+      "tools": [
+        "nmap"
+      ],
+      "score": 7,
+      "severity": "High",
+      "confidence": "Medium",
+      "note": "Memcached exposed publicly — amplification & data exposure risk.",
+      "recommendation": "Limit network exposure and require ACLs."
+    },
+    {
+      "id": "R039",
+      "match": "jenkins",
+      "match_type": "substring",
+      "tools": [
+        "whatweb",
+        "nmap",
+        "nikto"
+      ],
+      "score": 9,
+      "severity": "High",
+      "confidence": "High",
+      "note": "Jenkins/CI exposed — high-value target.",
+      "recommendation": "Isolate Jenkins, require MFA, and update plugins/versions."
+    },
+    {
+      "id": "R040",
+      "match": "tomcat",
+      "match_type": "substring",
+      "tools": [
+        "nmap",
+        "whatweb"
+      ],
+      "score": 8,
+      "severity": "High",
+      "confidence": "High",
+      "note": "Tomcat detected — manager app may be exposed.",
+      "recommendation": "Restrict manager access, update Tomcat, remove default apps."
+    },
+    {
+      "id": "R041",
+      "match": "webdav",
+      "match_type": "substring",
+      "tools": [
+        "nmap",
+        "nikto"
+      ],
+      "score": 6,
+      "severity": "Medium",
+      "confidence": "Medium",
+      "note": "WebDAV enabled — file management interface risk if misconfigured.",
+      "recommendation": "Disable WebDAV if not required or secure it."
+    },
+    {
+      "id": "R042",
+      "match": "trace",
+      "match_type": "substring",
+      "tools": [
+        "nikto",
+        "whatweb"
+      ],
+      "score": 5,
+      "severity": "Low",
+      "confidence": "Medium",
+      "note": "TRACE/OPTIONS methods may be enabled — risk of cross-site tracing.",
+      "recommendation": "Disable TRACE and restrict HTTP methods to allowed set."
+    },
+    {
+      "id": "R043",
+      "match": "http methods allowed: put|delete",
+      "match_type": "substring",
+      "tools": [
+        "nikto",
+        "whatweb"
+      ],
+      "score": 7,
+      "severity": "High",
+      "confidence": "Medium",
+      "note": "Unsafe HTTP methods (PUT/DELETE) allowed.",
+      "recommendation": "Disable unsafe methods unless required."
+    },
+    {
+      "id": "R044",
+      "match": "error in|stack trace|exception",
+      "match_type": "substring",
+      "tools": [
+        "nikto",
+        "whatweb"
+      ],
+      "score": 7,
+      "severity": "High",
+      "confidence": "High",
+      "note": "Verbose error messages exposing stack traces or internals.",
+      "recommendation": "Display sanitized error messages; log details server-side."
+    },
+    {
+      "id": "R045",
+      "match": "debug mode",
+      "match_type": "substring",
+      "tools": [
+        "whatweb",
+        "nikto"
+      ],
+      "score": 9,
+      "severity": "High",
+      "confidence": "High",
+      "note": "Application running in debug/development mode — sensitive info may leak.",
+      "recommendation": "Disable debug mode in production immediately."
+    },
+    {
+      "id": "R046",
+      "match": "csrf",
+      "match_type": "substring",
+      "tools": [
+        "burp",
+        "nikto"
+      ],
+      "score": 6,
+      "severity": "Medium",
+      "confidence": "Medium",
+      "note": "CSRF protections appear missing or weak.",
+      "recommendation": "Implement anti-CSRF tokens and SameSite cookie attributes."
+    },
+    {
+      "id": "R047",
+      "match": "access-control-allow-origin: *",
+      "match_type": "substring",
+      "tools": [
+        "whatweb",
+        "nikto"
+      ],
+      "score": 9,
+      "severity": "High",
+      "confidence": "High",
+      "note": "CORS wildcard allowed — may leak sensitive responses to any origin.",
+      "recommendation": "Restrict CORS to specific trusted origins and avoid credentials with wildcard."
+    },
+    {
+      "id": "R048",
+      "match": "insecure deserialization|pickle.loads",
+      "match_type": "regex",
+      "tools": [
+        "burp",
+        "nikto"
+      ],
+      "score": 10,
+      "severity": "Critical",
+      "confidence": "Medium",
+      "note": "Signs of insecure deserialization — high risk for RCE.",
+      "recommendation": "Remove unsafe deserialization patterns and validate input."
+    },
+    {
+      "id": "R049",
+      "match": "xxe|xml external entity",
+      "match_type": "regex",
+      "tools": [
+        "nikto",
+        "burp",
+        "wapiti"
+      ],
+      "score": 9,
+      "severity": "High",
+      "confidence": "High",
+      "note": "XXE detection suggests XML parser allows external entities.",
+      "recommendation": "Disable external entity resolution and patch XML libraries."
+    },
+    {
+      "id": "R050",
+      "match": "open proxy|proxy",
+      "match_type": "substring",
+      "tools": [
+        "whatweb",
+        "nmap"
+      ],
+      "score": 7,
+      "severity": "High",
+      "confidence": "Medium",
+      "note": "Proxy service available — may be abused for anonymity or pivoting.",
+      "recommendation": "Restrict proxy access and require authentication."
+    },
+    {
+      "id": "R051",
+      "match": "sitemap.xml",
+      "match_type": "substring",
+      "tools": [
+        "whatweb",
+        "gobuster"
+      ],
+      "score": 2,
+      "severity": "Low",
+      "confidence": "High",
+      "note": "sitemap found — useful for mapping but may list sensitive endpoints.",
+      "recommendation": "Exclude internal/sensitive URLs from public sitemap."
+    },
+    {
+      "id": "R052",
+      "match": "session id in url|jsessionid",
+      "match_type": "regex",
+      "tools": [
+        "whatweb",
+        "nikto"
+      ],
+      "score": 6,
+      "severity": "Medium",
+      "confidence": "Medium",
+      "note": "Session identifiers in URL — leakage via logs/referrers.",
+      "recommendation": "Use secure cookies and avoid passing session IDs in URLs."
+    },
+    {
+      "id": "R053",
+      "match": "cookie: session",
+      "match_type": "substring",
+      "tools": [
+        "whatweb",
+        "burp"
+      ],
+      "score": 3,
+      "severity": "Low",
+      "confidence": "Medium",
+      "note": "Session cookie observed — check Secure/HttpOnly/SameSite flags.",
+      "recommendation": "Set Secure and HttpOnly flags; use SameSite as appropriate."
+    },
+    {
+      "id": "R054",
+      "match": "sploitscan|sploitscan result",
+      "match_type": "substring",
+      "tools": [
+        "sploitscan",
+        "nikto"
+      ],
+      "score": 6,
+      "severity": "Medium",
+      "confidence": "Medium",
+      "note": "Automated CVE matching output present.",
+      "recommendation": "Verify findings against NVD and prioritize fixes."
+    },
+    {
+      "id": "R055",
+      "match": "admin login|/admin|administrator",
+      "match_type": "regex",
+      "tools": [
+        "gobuster",
+        "whatweb"
+      ],
+      "score": 4,
+      "severity": "Low",
+      "confidence": "High",
+      "note": "Admin endpoints discovered — should be protected.",
+      "recommendation": "Protect admin paths with auth, IP restriction, or VPN."
+    },
+    {
+      "id": "R056",
+      "match": "default credentials|admin:admin|test:test",
+      "match_type": "regex",
+      "tools": [
+        "wpscan",
+        "nikto",
+        "manual"
+      ],
+      "score": 10,
+      "severity": "Critical",
+      "confidence": "High",
+      "note": "Default credentials found — immediate takeover risk.",
+      "recommendation": "Change default credentials and force password policy."
+    },
+    {
+      "id": "R057",
+      "match": "open mongodb|mongod",
+      "match_type": "regex",
+      "tools": [
+        "nmap"
+      ],
+      "score": 9,
+      "severity": "High",
+      "confidence": "High",
+      "note": "MongoDB reachable without auth — data exposure risk.",
+      "recommendation": "Enable auth, bind to localhost or use firewall ACLs."
+    },
+    {
+      "id": "R058",
+      "match": "clickjacking",
+      "match_type": "substring",
+      "tools": [
+        "nikto",
+        "whatweb"
+      ],
+      "score": 4,
+      "severity": "Low",
+      "confidence": "Medium",
+      "note": "Potential clickjacking due to missing frame protections.",
+      "recommendation": "Add X-Frame-Options or CSP frame-ancestors header."
+    },
+    {
+      "id": "R059",
+      "match": "sensitive information|password|api_key|secret",
+      "match_type": "regex",
+      "tools": [
+        "nikto",
+        "whatweb",
+        "gobuster"
+      ],
+      "score": 10,
+      "severity": "Critical",
+      "confidence": "High",
+      "note": "Potential clear-text secrets found in responses or files.",
+      "recommendation": "Remove secrets, rotate keys, and fix server config."
+    },
+    {
+      "id": "R060",
+      "match": "open telnet|23/tcp open telnet",
+      "match_type": "regex",
+      "tools": [
+        "nmap"
+      ],
+      "score": 9,
+      "severity": "High",
+      "confidence": "High",
+      "note": "Telnet enabled — cleartext credentials and command execution risk.",
+      "recommendation": "Disable Telnet; use SSH with strong auth."
+    },
+    {
+      "id": "R061",
+      "match": "rdp|3389/tcp open",
+      "match_type": "regex",
+      "tools": [
+        "nmap"
+      ],
+      "score": 8,
+      "severity": "High",
+      "confidence": "High",
+      "note": "RDP exposed — elevate risk of brute-force and lateral movement.",
+      "recommendation": "Restrict RDP via VPN or allowlist IPs and require MFA."
+    },
+    {
+      "id": "R062",
+      "match": "smbv1|ms08-067",
+      "match_type": "regex",
+      "tools": [
+        "nmap",
+        "smbclient"
+      ],
+      "score": 10,
+      "severity": "Critical",
+      "confidence": "High",
+      "note": "SMBv1 or known MS vulnerabilities present.",
+      "recommendation": "Disable SMBv1 and apply security patches immediately."
+    },
+    {
+      "id": "R063",
+      "match": "catalina_home|tomcat manager",
+      "match_type": "regex",
+      "tools": [
+        "whatweb",
+        "nikto"
+      ],
+      "score": 8,
+      "severity": "High",
+      "confidence": "High",
+      "note": "Tomcat manager or admin interface exposed.",
+      "recommendation": "Restrict manager access and change default credentials."
+    },
+    {
+      "id": "R064",
+      "match": "upload.php|fileupload",
+      "match_type": "regex",
+      "tools": [
+        "gobuster",
+        "nikto"
+      ],
+      "score": 7,
+      "severity": "High",
+      "confidence": "Medium",
+      "note": "File upload endpoints present; may be abused for RCE.",
+      "recommendation": "Implement strict validation and store files outside webroot."
+    },
+    {
+      "id": "R065",
+      "match": "sso|single sign on",
+      "match_type": "substring",
+      "tools": [
+        "whatweb",
+        "nikto"
+      ],
+      "score": 3,
+      "severity": "Low",
+      "confidence": "Medium",
+      "note": "Single Sign-On endpoints detected — verify SSO security.",
+      "recommendation": "Ensure SSO provider config and tokens are secure."
+    },
+    {
+      "id": "R066",
+      "match": "oauth|openid",
+      "match_type": "regex",
+      "tools": [
+        "whatweb",
+        "burp"
+      ],
+      "score": 4,
+      "severity": "Low",
+      "confidence": "Medium",
+      "note": "OAuth/OpenID endpoints detected — check token flows.",
+      "recommendation": "Validate redirect URIs and token scopes."
+    },
+    {
+      "id": "R067",
+      "match": "sitemap.xml contains private|private",
+      "match_type": "substring",
+      "tools": [
+        "whatweb",
+        "gobuster"
+      ],
+      "score": 4,
+      "severity": "Low",
+      "confidence": "Medium",
+      "note": "Sitemap references private/internal endpoints.",
+      "recommendation": "Remove internal endpoints from public sitemap."
+    },
+    {
+      "id": "R068",
+      "match": "iis|microsoft-iis",
+      "match_type": "substring",
+      "tools": [
+        "whatweb",
+        "nmap"
+      ],
+      "score": 5,
+      "severity": "Medium",
+      "confidence": "High",
+      "note": "IIS web server detected — review IIS patches and modules.",
+      "recommendation": "Apply patches and remove unnecessary modules."
+    },
+    {
+      "id": "R069",
+      "match": "oauth token exposed|access_token=",
+      "match_type": "substring",
+      "tools": [
+        "whatweb",
+        "nikto",
+        "gobuster"
+      ],
+      "score": 10,
+      "severity": "Critical",
+      "confidence": "High",
+      "note": "Access tokens or API keys found in URLs or files.",
+      "recommendation": "Revoke exposed tokens, rotate credentials, and fix leak sources."
+    },
+    {
+      "id": "R070",
+      "match": "saml|metadata.xml",
+      "match_type": "regex",
+      "tools": [
+        "whatweb"
+      ],
+      "score": 4,
+      "severity": "Low",
+      "confidence": "Medium",
+      "note": "SAML endpoints or metadata detected — check for XML signing issues.",
+      "recommendation": "Validate SAML configuration and certificate usage."
+    },
+
+    /* Imported web_rules.json entries (converted and prefixed with W) */
+    {
+      "id": "W001",
+      "match": "phpinfo.php",
+      "match_type": "substring",
+      "tools": [
+        "nikto",
+        "whatweb",
+        "gobuster"
+      ],
+      "score": 10,
+      "severity": "Critical",
+      "confidence": "High",
+      "note": "phpinfo disclosure detected.",
+      "recommendation": "Remove phpinfo.php from webroot; rotate any exposed secrets.",
+      "category": "disclosure"
+    },
+    {
+      "id": "W002",
+      "match": "\\bphp/",
+      "match_type": "regex",
+      "tools": [
+        "whatweb",
+        "nikto"
+      ],
+      "score": 7,
+      "severity": "High",
+      "confidence": "High",
+      "note": "PHP present (fingerprint).",
+      "recommendation": "Confirm exact PHP version and upgrade to supported release.",
+      "category": "config"
+    },
+    {
+      "id": "W003",
+      "match": "apache",
+      "match_type": "substring",
+      "tools": [
+        "whatweb",
+        "nmap",
+        "nikto"
+      ],
+      "score": 6,
+      "severity": "Medium",
+      "confidence": "High",
+      "note": "Apache fingerprinted.",
+      "recommendation": "Inventory version and apply vendor patches; disable unused modules.",
+      "category": "config"
+    },
+    {
+      "id": "W004",
+      "match": "server:\\s*nginx",
+      "match_type": "regex",
+      "tools": [
+        "whatweb",
+        "nikto"
+      ],
+      "score": 5,
+      "severity": "Medium",
+      "confidence": "High",
+      "note": "Nginx server fingerprinted.",
+      "recommendation": "Verify config and patch level; remove unnecessary modules.",
+      "category": "config"
+    },
+    {
+      "id": "W005",
+      "match": "\\bopen\\b",
+      "match_type": "regex",
+      "tools": [
+        "nmap"
+      ],
+      "score": 3,
+      "severity": "Low",
+      "confidence": "Medium",
+      "note": "Generic 'open' occurrences seen in scan output.",
+      "recommendation": "Review services and firewall rules; close unnecessary ports.",
+      "category": "network"
+    },
+    {
+      "id": "W006",
+      "match": "22/tcp\\s+open\\s+ssh",
+      "match_type": "regex",
+      "tools": [
+        "nmap"
+      ],
+      "score": 4,
+      "severity": "Low",
+      "confidence": "High",
+      "note": "SSH port open.",
+      "recommendation": "Enforce key-based auth, disable password login, restrict by IP.",
+      "category": "auth"
+    },
+    {
+      "id": "W007",
+      "match": "21/tcp\\s+open\\s+ftp",
+      "match_type": "regex",
+      "tools": [
+        "nmap",
+        "nikto"
+      ],
+      "score": 6,
+      "severity": "Medium",
+      "confidence": "High",
+      "note": "FTP service discovered.",
+      "recommendation": "Disable FTP or use FTPS/SFTP; enforce strong authentication.",
+      "category": "protocol"
+    },
+    {
+      "id": "W008",
+      "match": "anonymous login ok|anonymous access allowed",
+      "match_type": "regex",
+      "tools": [
+        "ftp scanners",
+        "nikto"
+      ],
+      "score": 8,
+      "severity": "High",
+      "confidence": "High",
+      "note": "Anonymous FTP access allowed.",
+      "recommendation": "Disable anonymous login; audit uploads/downloads.",
+      "category": "auth"
+    },
+    {
+      "id": "W009",
+      "match": "\\bhttps?\\b|tls|ssl",
+      "match_type": "regex",
+      "tools": [
+        "nmap",
+        "whatweb",
+        "sslscan"
+      ],
+      "score": 2,
+      "severity": "Low",
+      "confidence": "Medium",
+      "note": "TLS/HTTPS observed; run full TLS checks separately.",
+      "recommendation": "Run detailed TLS scans; remediate weak ciphers and protocols.",
+      "category": "crypto"
+    },
+    {
+      "id": "W010",
+      "match": "sslv3",
+      "match_type": "substring",
+      "tools": [
+        "sslscan",
+        "nmap"
+      ],
+      "score": 10,
+      "severity": "Critical",
+      "confidence": "High",
+      "note": "SSLv3 detected.",
+      "recommendation": "Disable SSLv3; prefer TLS 1.2+/1.3.",
+      "category": "crypto"
+    },
+    {
+      "id": "W011",
+      "match": "tlsv1\\.0|tlsv1\\.1",
+      "match_type": "regex",
+      "tools": [
+        "sslscan",
+        "nmap"
+      ],
+      "score": 7,
+      "severity": "High",
+      "confidence": "High",
+      "note": "Deprecated TLS versions found.",
+      "recommendation": "Disable TLS 1.0/1.1; enforce TLS 1.2+.",
+      "category": "crypto"
+    },
+    {
+      "id": "W012",
+      "match": "\\brc4\\b|\\b3des\\b|\\bdes\\b",
+      "match_type": "regex",
+      "tools": [
+        "sslscan",
+        "nmap"
+      ],
+      "score": 8,
+      "severity": "High",
+      "confidence": "High",
+      "note": "Weak cipher suites observed.",
+      "recommendation": "Remove weak cipher suites; use modern ciphers (AES-GCM/ChaCha20).",
+      "category": "crypto"
+    },
+    {
+      "id": "W013",
+      "match": "self.?signed|self-signed",
+      "match_type": "regex",
+      "tools": [
+        "sslscan",
+        "whatweb"
+      ],
+      "score": 5,
+      "severity": "Medium",
+      "confidence": "High",
+      "note": "Self-signed certificate present.",
+      "recommendation": "Use CA-signed certs or trusted internal PKI.",
+      "category": "crypto"
+    },
+    {
+      "id": "W014",
+      "match": "certificate expired|expired certificate",
+      "match_type": "regex",
+      "tools": [
+        "sslscan",
+        "whatweb"
+      ],
+      "score": 7,
+      "severity": "High",
+      "confidence": "High",
+      "note": "Expired TLS certificate found.",
+      "recommendation": "Renew certificate and verify full chain.",
+      "category": "crypto"
+    },
+    {
+      "id": "W015",
+      "match": "x-frame-options",
+      "match_type": "substring",
+      "tools": [
+        "nikto",
+        "whatweb"
+      ],
+      "score": 3,
+      "severity": "Low",
+      "confidence": "High",
+      "note": "X-Frame-Options header status seen.",
+      "recommendation": "Add X-Frame-Options or CSP frame-ancestors header.",
+      "category": "headers"
+    },
+    {
+      "id": "W016",
+      "match": "content-security-policy",
+      "match_type": "substring",
+      "tools": [
+        "whatweb",
+        "nikto"
+      ],
+      "score": 4,
+      "severity": "Low",
+      "confidence": "High",
+      "note": "CSP header presence checked.",
+      "recommendation": "Deploy an appropriate Content-Security-Policy.",
+      "category": "headers"
+    },
+    {
+      "id": "W017",
+      "match": "x-powered-by",
+      "match_type": "substring",
+      "tools": [
+        "whatweb",
+        "nikto"
+      ],
+      "score": 3,
+      "severity": "Low",
+      "confidence": "High",
+      "note": "Technology disclosure header exposed.",
+      "recommendation": "Remove disclosure headers in production.",
+      "category": "disclosure"
+    },
+    {
+      "id": "W018",
+      "match": "index of /|directory listing",
+      "match_type": "regex",
+      "tools": [
+        "nikto",
+        "whatweb",
+        "gobuster"
+      ],
+      "score": 6,
+      "severity": "Medium",
+      "confidence": "High",
+      "note": "Directory listing detected.",
+      "recommendation": "Disable directory indexes and remove sensitive files.",
+      "category": "disclosure"
+    },
+    {
+      "id": "W019",
+      "match": "robots.txt",
+      "match_type": "substring",
+      "tools": [
+        "whatweb",
+        "nikto"
+      ],
+      "score": 2,
+      "severity": "Low",
+      "confidence": "High",
+      "note": "robots.txt present.",
+      "recommendation": "Avoid listing sensitive paths; protect endpoints.",
+      "category": "info"
+    },
+    {
+      "id": "W020",
+      "match": "\\.env",
+      "match_type": "regex",
+      "tools": [
+        "gobuster",
+        "nikto",
+        "whatweb"
+      ],
+      "score": 10,
+      "severity": "Critical",
+      "confidence": "High",
+      "note": ".env or environment file exposed publicly.",
+      "recommendation": "Remove .env from webroot; rotate leaked secrets.",
+      "category": "sensitive"
+    },
+    {
+      "id": "W021",
+      "match": "\\.git/|git HEAD",
+      "match_type": "regex",
+      "tools": [
+        "gobuster",
+        "nikto"
+      ],
+      "score": 9,
+      "severity": "High",
+      "confidence": "High",
+      "note": "Git metadata exposed in webroot.",
+      "recommendation": "Remove .git from webroot and audit repo for secrets.",
+      "category": "disclosure"
+    },
+    {
+      "id": "W022",
+      "match": "\\.bak|\\.old|\\.sql|\\.zip backup",
+      "match_type": "regex",
+      "tools": [
+        "gobuster",
+        "nikto"
+      ],
+      "score": 6,
+      "severity": "Medium",
+      "confidence": "Medium",
+      "note": "Backup files found in public webroot.",
+      "recommendation": "Remove backups from webroot and store securely.",
+      "category": "disclosure"
+    },
+    {
+      "id": "W023",
+      "match": "phpmyadmin",
+      "match_type": "substring",
+      "tools": [
+        "whatweb",
+        "gobuster",
+        "nmap"
+      ],
+      "score": 8,
+      "severity": "High",
+      "confidence": "High",
+      "note": "phpMyAdmin present and potentially accessible.",
+      "recommendation": "Restrict phpMyAdmin with auth and IP allowlist.",
+      "category": "service"
+    },
+    {
+      "id": "W024",
+      "match": "wordpress|wp-content",
+      "match_type": "regex",
+      "tools": [
+        "whatweb",
+        "wpscan",
+        "nikto"
+      ],
+      "score": 9,
+      "severity": "High",
+      "confidence": "High",
+      "note": "WordPress detected.",
+      "recommendation": "Run wpscan, update core/plugins/themes, secure admin.",
+      "category": "cms"
+    },
+    {
+      "id": "W025",
+      "match": "joomla",
+      "match_type": "substring",
+      "tools": [
+        "whatweb",
+        "nikto"
+      ],
+      "score": 8,
+      "severity": "High",
+      "confidence": "High",
+      "note": "Joomla platform detected.",
+      "recommendation": "Patch Joomla and extensions; limit admin access.",
+      "category": "cms"
+    },
+    {
+      "id": "W026",
+      "match": "drupal",
+      "match_type": "substring",
+      "tools": [
+        "whatweb",
+        "nikto"
+      ],
+      "score": 8,
+      "severity": "High",
+      "confidence": "High",
+      "note": "Drupal platform detected.",
+      "recommendation": "Patch Drupal core/modules; remove unused modules.",
+      "category": "cms"
+    },
+    {
+      "id": "W027",
+      "match": "wp-login\\.php|/wp-admin/",
+      "match_type": "regex",
+      "tools": [
+        "whatweb",
+        "gobuster",
+        "nikto"
+      ],
+      "score": 5,
+      "severity": "Medium",
+      "confidence": "High",
+      "note": "WordPress admin/login endpoints discovered.",
+      "recommendation": "Enable 2FA, rate-limit and restrict admin access.",
+      "category": "auth"
+    },
+    {
+      "id": "W028",
+      "match": "sql syntax|mysql error|syntax error in sql",
+      "match_type": "regex",
+      "tools": [
+        "nikto",
+        "whatweb"
+      ],
+      "score": 9,
+      "severity": "High",
+      "confidence": "High",
+      "note": "SQL error messages present in responses.",
+      "recommendation": "Sanitize inputs and hide DB errors from users.",
+      "category": "injection"
+    },
+    {
+      "id": "W029",
+      "match": "sqlmap",
+      "match_type": "substring",
+      "tools": [
+        "sqlmap",
+        "nikto"
+      ],
+      "score": 9,
+      "severity": "High",
+      "confidence": "Medium",
+      "note": "Evidence of automated SQLi tool output or references.",
+      "recommendation": "Investigate injection points and fix parameterized queries.",
+      "category": "injection"
+    },
+    {
+      "id": "W030",
+      "match": "cross site scripting|xss|<script>",
+      "match_type": "regex",
+      "tools": [
+        "wapiti",
+        "nikto",
+        "burp"
+      ],
+      "score": 9,
+      "severity": "High",
+      "confidence": "Medium",
+      "note": "XSS indicators or payloads found.",
+      "recommendation": "Validate and encode outputs; implement CSP.",
+      "category": "injection"
+    },
+    {
+      "id": "W031",
+      "match": "\\.\\./|/etc/passwd",
+      "match_type": "regex",
+      "tools": [
+        "nikto",
+        "wapiti",
+        "burp"
+      ],
+      "score": 10,
+      "severity": "Critical",
+      "confidence": "High",
+      "note": "Directory traversal patterns or sensitive file references.",
+      "recommendation": "Sanitize file paths and enforce strict access controls.",
+      "category": "filesystem"
+    },
+    {
+      "id": "W032",
+      "match": "upload.php|fileupload|multipart/form-data",
+      "match_type": "regex",
+      "tools": [
+        "gobuster",
+        "nikto"
+      ],
+      "score": 8,
+      "severity": "High",
+      "confidence": "Medium",
+      "note": "File upload endpoints located.",
+      "recommendation": "Validate file types, store outside webroot and scan uploads.",
+      "category": "filesystem"
+    },
+    {
+      "id": "W033",
+      "match": "pickle\\.loads|deserialize|unserialize",
+      "match_type": "regex",
+      "tools": [
+        "burp",
+        "nikto"
+      ],
+      "score": 10,
+      "severity": "Critical",
+      "confidence": "Medium",
+      "note": "Potential insecure deserialization functions detected.",
+      "recommendation": "Avoid unsafe deserialization, validate inputs and patch libs.",
+      "category": "code"
+    },
+    {
+      "id": "W034",
+      "match": "xml external entity|xxe",
+      "match_type": "regex",
+      "tools": [
+        "nikto",
+        "burp",
+        "wapiti"
+      ],
+      "score": 9,
+      "severity": "High",
+      "confidence": "High",
+      "note": "XXE patterns or references discovered.",
+      "recommendation": "Disable external entities and patch XML parsers.",
+      "category": "injection"
+    },
+    {
+      "id": "W035",
+      "match": "redis server|6379/tcp open redis",
+      "match_type": "regex",
+      "tools": [
+        "nmap",
+        "whatweb"
+      ],
+      "score": 8,
+      "severity": "High",
+      "confidence": "High",
+      "note": "Redis exposed without authentication.",
+      "recommendation": "Bind Redis to localhost or use ACLs and firewall.",
+      "category": "service"
+    },
+    {
+      "id": "W036",
+      "match": "elasticsearch|9200/tcp open",
+      "match_type": "regex",
+      "tools": [
+        "nmap",
+        "whatweb"
+      ],
+      "score": 9,
+      "severity": "High",
+      "confidence": "High",
+      "note": "Elasticsearch reachable publicly.",
+      "recommendation": "Require auth and restrict network access.",
+      "category": "service"
+    },
+    {
+      "id": "W037",
+      "match": "mongodb|27017/tcp open",
+      "match_type": "regex",
+      "tools": [
+        "nmap"
+      ],
+      "score": 9,
+      "severity": "High",
+      "confidence": "High",
+      "note": "MongoDB service detected and reachable.",
+      "recommendation": "Enable authentication and bind to localhost/firewall.",
+      "category": "service"
+    },
+    {
+      "id": "W038",
+      "match": "memcached|11211/tcp open",
+      "match_type": "regex",
+      "tools": [
+        "nmap"
+      ],
+      "score": 7,
+      "severity": "High",
+      "confidence": "Medium",
+      "note": "Memcached service exposed.",
+      "recommendation": "Restrict access and disable UDP or apply ACLs.",
+      "category": "service"
+    },
+    {
+      "id": "W039",
+      "match": "jenkins",
+      "match_type": "substring",
+      "tools": [
+        "whatweb",
+        "nmap",
+        "nikto"
+      ],
+      "score": 9,
+      "severity": "High",
+      "confidence": "High",
+      "note": "Jenkins CI detected.",
+      "recommendation": "Restrict access, enable MFA and update plugins.",
+      "category": "service"
+    },
+    {
+      "id": "W040",
+      "match": "tomcat|manager/html",
+      "match_type": "regex",
+      "tools": [
+        "whatweb",
+        "nikto"
+      ],
+      "score": 8,
+      "severity": "High",
+      "confidence": "High",
+      "note": "Tomcat manager or admin webapp present.",
+      "recommendation": "Restrict manager access and change default credentials.",
+      "category": "service"
+    },
+    {
+      "id": "W041",
+      "match": "webdav|dav/",
+      "match_type": "regex",
+      "tools": [
+        "nmap",
+        "nikto"
+      ],
+      "score": 6,
+      "severity": "Medium",
+      "confidence": "Medium",
+      "note": "WebDAV interface detected.",
+      "recommendation": "Disable WebDAV if not needed or secure it properly.",
+      "category": "config"
+    },
+    {
+      "id": "W042",
+      "match": "\\bTRACE\\b|\\bOPTIONS\\b",
+      "match_type": "regex",
+      "tools": [
+        "nikto",
+        "whatweb"
+      ],
+      "score": 5,
+      "severity": "Low",
+      "confidence": "Medium",
+      "note": "TRACE or OPTIONS HTTP methods may be allowed.",
+      "recommendation": "Disable TRACE and restrict allowed HTTP methods.",
+      "category": "config"
+    },
+    {
+      "id": "W043",
+      "match": "\\bPUT\\b|\\bDELETE\\b|\\bPATCH\\b",
+      "match_type": "regex",
+      "tools": [
+        "nikto",
+        "whatweb"
+      ],
+      "score": 7,
+      "severity": "High",
+      "confidence": "Medium",
+      "note": "Unsafe HTTP methods allowed (PUT/DELETE/PATCH).",
+      "recommendation": "Disable unsafe HTTP methods unless explicitly required.",
+      "category": "config"
+    },
+    {
+      "id": "W044",
+      "match": "stack trace|exception in|traceback",
+      "match_type": "regex",
+      "tools": [
+        "nikto",
+        "whatweb"
+      ],
+      "score": 7,
+      "severity": "High",
+      "confidence": "High",
+      "note": "Verbose error messages or stack traces detected.",
+      "recommendation": "Return sanitized errors to users and log details internally.",
+      "category": "disclosure"
+    },
+    {
+      "id": "W045",
+      "match": "debug mode|django debug|flask debug",
+      "match_type": "regex",
+      "tools": [
+        "whatweb",
+        "nikto"
+      ],
+      "score": 9,
+      "severity": "High",
+      "confidence": "High",
+      "note": "Application appears to be running in debug mode.",
+      "recommendation": "Disable debug mode in production immediately.",
+      "category": "config"
+    },
+    {
+      "id": "W046",
+      "match": "csrf token missing|no csrf|csrf protection",
+      "match_type": "regex",
+      "tools": [
+        "burp",
+        "nikto"
+      ],
+      "score": 6,
+      "severity": "Medium",
+      "confidence": "Medium",
+      "note": "CSRF protections appear absent or weak.",
+      "recommendation": "Implement anti-CSRF tokens and SameSite cookie flags.",
+      "category": "auth"
+    },
+    {
+      "id": "W047",
+      "match": "access-control-allow-origin:\\s*\\*",
+      "match_type": "regex",
+      "tools": [
+        "whatweb",
+        "nikto"
+      ],
+      "score": 9,
+      "severity": "High",
+      "confidence": "High",
+      "note": "CORS allows wildcard origin.",
+      "recommendation": "Restrict CORS to specific trusted origins.",
+      "category": "headers"
+    },
+    {
+      "id": "W048",
+      "match": "access_token=|oauth_token=",
+      "match_type": "regex",
+      "tools": [
+        "whatweb",
+        "nikto",
+        "gobuster"
+      ],
+      "score": 10,
+      "severity": "Critical",
+      "confidence": "High",
+      "note": "Access token or OAuth token appearing in URLs or files.",
+      "recommendation": "Revoke exposed tokens and avoid passing tokens in URLs.",
+      "category": "sensitive"
+    },
+    {
+      "id": "W049",
+      "match": "<\\s*EntityDescriptor|metadata.xml",
+      "match_type": "regex",
+      "tools": [
+        "whatweb"
+      ],
+      "score": 4,
+      "severity": "Low",
+      "confidence": "Medium",
+      "note": "SAML metadata or EntityDescriptor discovered.",
+      "recommendation": "Review SAML metadata and signing configuration.",
+      "category": "auth"
+    },
+    {
+      "id": "W050",
+      "match": "admin:admin|test:test|default password",
+      "match_type": "regex",
+      "tools": [
+        "wpscan",
+        "nikto",
+        "manual"
+      ],
+      "score": 10,
+      "severity": "Critical",
+      "confidence": "High",
+      "note": "Default credentials or clear 'default password' pattern detected.",
+      "recommendation": "Change default credentials and enforce password policy.",
+      "category": "auth"
+    }
+  ]
+}
