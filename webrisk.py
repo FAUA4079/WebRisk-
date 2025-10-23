@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-webrisk_no_nikto_smart.py — Improved WebRisk scanner (nikto removed)
+webrisk
 
 This variant DOES NOT embed any rules. You must pass a rules JSON file with --rules.
 Rules file format: either a JSON object with a "rules" array or a JSON array of rule objects.
