@@ -424,7 +424,7 @@ def main() -> None:
     prepared_rules = [prepare_rule(r) for r in rules]
 
     # Reminder
-    print("⚠️  Legal reminder: Only scan systems you own or have explicit permission to test.")
+    print("# Legal reminder: Only scan systems you own or have explicit permission to test.")
 
     for t in targets:
         print(f"=== Processing target: {t} ===")
