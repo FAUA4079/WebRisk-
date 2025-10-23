@@ -988,8 +988,6 @@
       "note": "SAML endpoints or metadata detected — check for XML signing issues.",
       "recommendation": "Validate SAML configuration and certificate usage."
     },
-
-    /* Imported web_rules.json entries (converted and prefixed with W) */
     {
       "id": "W001",
       "match": "phpinfo.php",
